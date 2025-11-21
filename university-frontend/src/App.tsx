@@ -8,6 +8,7 @@ import { SchedulePage } from './pages/SchedulePage'
 import { ExamsPage } from './pages/ExamsPage'
 import { PaymentsPage } from './pages/PaymentsPage'
 import { LoginPage } from './pages/LoginPage'
+import { ReportsPage } from './pages/ReportsPage'
 import { useAuth } from './hooks/useAuth'
 import type { JSX } from 'react'
 
@@ -66,6 +67,7 @@ function App() {
             <Route path="/schedule/*" element={<PrivateRoute><SchedulePage /></PrivateRoute>} />
             <Route path="/exams/*" element={<PrivateRoute><ExamsPage /></PrivateRoute>} />
             <Route path="/payments/*" element={<PrivateRoute><PaymentsPage /></PrivateRoute>} />
+            <Route path="/reports" element={<PrivateRoute><ReportsPage /></PrivateRoute>} />
           </Routes>
         </main>
       </div>
