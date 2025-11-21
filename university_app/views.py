@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
+from .cache import UniversityCache
 from .models import (
     Department, Teacher, Student, Course,
     Enrollment, Schedule, Exam, Payment
@@ -97,4 +98,20 @@ def report_top_5_students(request):
 @permission_classes([IsAuthenticatedOrReadOnly])
 def report_debtors(request):
     data = UniversityReports.debtors_with_debt_amount()
+    return Response({"debtors": data})
+
+
+@api_view(['GET'])
+def cached_courses(request):
+    data = UniversityCache.get_courses()
+    return Response({"courses": data})
+
+@api_view(['GET'])
+def cached_schedule(request):
+    data = UniversityCache.get_schedule()
+    return Response({"schedule": data})
+
+@api_view(['GET'])
+def cached_debtors(request):
+    data = UniversityCache.get_debtors()
     return Response({"debtors": data})
