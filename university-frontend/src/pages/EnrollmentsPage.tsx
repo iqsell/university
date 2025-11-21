@@ -5,14 +5,15 @@ import type { Enrollment, Student, Course } from '../types'
 import { Link, Routes, Route, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
-const fetchEnrollments = async (): Promise<Enrollment[]> => (await api.get('enrollments/')).data
-const fetchStudents = async (): Promise<Student[]> => (await api.get('students/')).data
-const fetchCourses = async (): Promise<Course[]> => (await api.get('courses/')).data
+const fetchEnrollments = async () => (await api.get('enrollments/')).data
+const fetchStudents = async () => (await api.get('students/')).data
+const fetchCourses = async () => (await api.get('courses/')).data
 
 export function EnrollmentsPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { data: enrollments = [], isLoading } = useQuery({ queryKey: ['enrollments'], queryFn: fetchEnrollments })
+  const { data: rawData = {}, isLoading } = useQuery({ queryKey: ['enrollments'], queryFn: fetchEnrollments })
+  const enrollments: Enrollment[] = Array.isArray(rawData) ? rawData : (rawData.results || [])
 
   const deleteMut = useMutation({
     mutationFn: (id: number) => api.delete(`enrollments/${id}/`),
@@ -25,23 +26,39 @@ export function EnrollmentsPage() {
     <>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold text-indigo-700">Записи на курсы</h1>
-        <Link to="create" className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition text-lg font-medium">
+        <Link to="create" className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition text-lg font-medium shadow-lg">
           + Записать студента
         </Link>
       </div>
 
-      <div className="grid gap-6">
-        {enrollments.map(e => (
-          <div key={e.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition">
-            <p className="text-xl"><strong>{e.student_name}</strong> → <strong>{e.course_name}</strong></p>
-            <p className="text-gray-600">Дата записи: {new Date(e.enrollment_date).toLocaleDateString()}</p>
-            <p>Оценка: <strong>{e.grade ?? '—'}</strong> • Зачтено: <strong>{e.passed ? 'Да' : 'Нет'}</strong></p>
-            <button onClick={() => deleteMut.mutate(e.id)} className="mt-4 bg-red-600 text-white px-5 py-2 rounded hover:bg-red-700 transition">
-              Отчислить с курса
-            </button>
-          </div>
-        ))}
-      </div>
+      {enrollments.length === 0 ? (
+        <p className="text-center text-2xl text-gray-600 mt-20">Записей пока нет</p>
+      ) : (
+        <div className="grid gap-8">
+          {enrollments.map(e => (
+            <div key={e.id} className="bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition border border-gray-100">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-2xl font-bold text-indigo-700">
+                    {e.student_name} → {e.course_name}
+                  </p>
+                  <p className="text-lg text-gray-600 mt-2">
+                    Записан: {new Date(e.enrollment_date).toLocaleDateString('ru-RU')}
+                  </p>
+                  <p className="text-xl mt-3">
+                    Оценка: <strong className={e.passed ? 'text-green-600' : 'text-red-600'}>
+                      {e.grade ?? '—'} {e.passed ? '✓ Зачтено' : '✗ Не зачтено'}
+                    </strong>
+                  </p>
+                </div>
+                <button onClick={() => deleteMut.mutate(e.id)} className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition font-medium">
+                  Отчислить
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <Routes>
         <Route path="create" element={<EnrollmentForm onClose={() => navigate('/enrollments')} />} />
@@ -54,33 +71,45 @@ interface EnrollmentFormProps { onClose: () => void }
 
 function EnrollmentForm({ onClose }: EnrollmentFormProps) {
   const queryClient = useQueryClient()
-  const { data: students = [] } = useQuery({ queryKey: ['students'], queryFn: fetchStudents })
-  const { data: courses = [] } = useQuery({ queryKey: ['courses'], queryFn: fetchCourses })
-  const [student, setStudent] = useState('')
-  const [course, setCourse] = useState('')
+  const { data: studentsRaw = {} } = useQuery({ queryKey: ['students'], queryFn: fetchStudents })
+  const { data: coursesRaw = {} } = useQuery({ queryKey: ['courses'], queryFn: fetchCourses })
+
+  const students: Student[] = Array.isArray(studentsRaw) ? studentsRaw : (studentsRaw.results || [])
+  const courses: Course[] = Array.isArray(coursesRaw) ? coursesRaw : (coursesRaw.results || [])
+
+  const [studentId, setStudentId] = useState('')
+  const [courseId, setCourseId] = useState('')
 
   const mutation = useMutation({
-    mutationFn: () => api.post('enrollments/', { student: Number(student), course: Number(course) }),
+    mutationFn: () => api.post('enrollments/', {
+      student: Number(studentId),
+      course: Number(courseId)
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['enrollments'] })
       onClose()
     }
   })
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    mutation.mutate()
+  }
+
   return (
-    <div className="max-w-2xl mx-auto mt-12 bg-white p-10 rounded-xl shadow-xl">
-      <h2 className="text-3xl font-bold mb-8 text-center text-indigo-700">Запись на курс</h2>
-      <form onSubmit={e => { e.preventDefault(); mutation.mutate() }} className="space-y-6">
-        <select required value={student} onChange={e => setStudent(e.target.value)} className="w-full px-4 py-3 border rounded-lg">
+    <div className="max-w-2xl mx-auto mt-12 bg-white p-10 rounded-2xl shadow-2xl">
+      <h2 className="text-4xl font-bold text-center text-indigo-700 mb-10">Запись на курс</h2>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <select required value={studentId} onChange={e => setStudentId(e.target.value)} className="w-full px-6 py-4 border-2 rounded-xl text-lg">
           <option value="">Выберите студента</option>
           {students.map(s => <option key={s.id} value={s.id}>{s.full_name}</option>)}
         </select>
-        <select required value={course} onChange={e => setCourse(e.target.value)} className="w-full px-4 py-3 border rounded-lg">
+        <select required value={courseId} onChange={e => setCourseId(e.target.value)} className="w-full px-6 py-4 border-2 rounded-xl text-lg">
           <option value="">Выберите курс</option>
           {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <button type="submit" className="w-full bg-indigo-600 text-white py-4 rounded-lg hover:bg-indigo-700 text-xl font-medium">
-          Записать
+        <button type="submit" disabled={mutation.isPending} className="w-full bg-indigo-600 text-white py-5 rounded-xl text-2xl font-bold hover:bg-indigo-700 transition disabled:opacity-70">
+          {mutation.isPending ? 'Запись...' : 'Записать на курс'}
         </button>
       </form>
     </div>

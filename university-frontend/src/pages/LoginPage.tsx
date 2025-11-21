@@ -16,6 +16,7 @@ export function LoginPage() {
     try {
       const res = await api.post('token/', { username, password })
       login(res.data.access)
+      localStorage.setItem('access_token', res.data.access)
       navigate('/students')
     } catch (err) {
       setError('Неверный логин или пароль')
