@@ -37,6 +37,12 @@ class Teacher(models.Model):
     def __str__(self):
         return f"{self.full_name} ({self.get_position_display()})"
 
+    def get_week_schedule(self):
+        from .models import Schedule
+        return Schedule.objects.filter(teacher=self).select_related('course').order_by(
+            'day_of_week', 'start_time'
+        )
+
     class Meta:
         verbose_name = 'Преподаватель'
         verbose_name_plural = 'Преподаватели'

@@ -5,6 +5,13 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from university_app.views import (
+    report_students_above_average,
+    report_teacher_schedule,
+    report_course_average,
+    report_top_5_students,
+    report_debtors
+)
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from university_app import views
@@ -33,4 +40,11 @@ urlpatterns = [
     # OpenAPI документация
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+
+    path('api/reports/students-above-average/', report_students_above_average, name='students_above_average'),
+    path('api/reports/teacher-schedule/<int:teacher_id>/', report_teacher_schedule, name='teacher_schedule'),
+    path('api/reports/course-average/<int:course_id>/', report_course_average, name='course_average'),
+    path('api/reports/top-5-students/', report_top_5_students, name='top_5_students'),
+    path('api/reports/debtors/', report_debtors, name='debtors'),
 ]
+
