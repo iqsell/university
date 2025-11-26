@@ -13,7 +13,7 @@ class UniversityReports:
         """1. Студенты с GPA > среднего по их курсам"""
         return list(
             Student.objects.annotate(
-                course_avg_grade=Coalesce(Avg('enrollment__grade'), 0.0)  # ← ВОТ ПРАВИЛЬНОЕ ИМЯ!
+                course_avg_grade=Coalesce(Avg('enrollments__grade'), 0.0)  # ← ВОТ ПРАВИЛЬНОЕ ИМЯ!
             )
             .filter(gpa__gt=F('course_avg_grade'))
             .values('id', 'full_name', 'email', 'gpa', 'course_avg_grade')

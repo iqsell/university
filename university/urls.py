@@ -5,13 +5,12 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-
 from university_app.views import (
     report_students_above_average,
     report_teacher_schedule,
     report_course_average,
     report_top_5_students,
-    report_debtors, cached_courses, cached_schedule, cached_debtors
+    report_debtors
 )
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
@@ -47,9 +46,5 @@ urlpatterns = [
     path('api/reports/course-average/<int:course_id>/', report_course_average, name='course_average'),
     path('api/reports/top-5-students/', report_top_5_students, name='top_5_students'),
     path('api/reports/debtors/', report_debtors, name='debtors'),
-
-    path('api/cache/courses/', cached_courses),
-    path('api/cache/schedule/', cached_schedule),
-    path('api/cache/debtors/', cached_debtors),
 ]
 
