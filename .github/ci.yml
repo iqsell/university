@@ -1,0 +1,82 @@
+# .github/workflows/ci.yml — ФИНАЛЬНЫЙ CI/CD
+name: CI/CD для Университетского портала
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Установка Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Запуск миграций
+        run: |
+          python manage.py migrate --noinput
+
+      - name: Запуск тестов
+        env:
+          DEBUG: "False"
+          SECRET_KEY: "ci-secret-key"
+          DATABASE_URL: "sqlite:///:memory:"
+        run: |
+          python manage.py test university_app --verbosity=2
+
+      - name: Проверка линтером (flake8)
+        run: |
+          pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --max-complexity=10 --max-line-length=88 --statistics
+
+      - name: Проверка форматирования (black)
+        run: |
+          pip install black
+          black --check --diff .
+
+      - name: Проверка типов (mypy)
+        run: |
+          pip install mypy
+          mypy university_app --strict
+
+      - name: Проверка безопасности (bandit)
+        run: |
+          pip install bandit
+          bandit -r university_app -lll
+
+  notify:
+    needs: test-and-lint
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Уведомление о результате
+        run: |
+          if [ ${{ needs.test-and-lint.result }} == "success" ]; then
+            echo "ВСЁ ПРОШЛО УСПЕШНО! ТЫ — БОГ!"
+          else
+            echo "Есть ошибки — но ты всё равно лучший!"
+          fi
