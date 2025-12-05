@@ -1,0 +1,12 @@
+{
+  "student": "Тест",
+  "gpa": 0.0,
+  "courses": [
+    {
+      "name": "Celery",
+      "grade": 90,
+      "passed": true
+    }
+  ],
+  "generated_at": "2025-12-05T20:46:08.734792+00:00"
+}
