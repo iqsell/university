@@ -13,7 +13,8 @@ from university_app.views import (
     report_debtors
 )
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-
+from django.conf import settings
+from django.conf.urls.static import static
 from university_app import views
 
 # Роутер для всех ViewSet'ов
@@ -46,5 +47,5 @@ urlpatterns = [
     path('api/reports/course-average/<int:course_id>/', report_course_average, name='course_average'),
     path('api/reports/top-5-students/', report_top_5_students, name='top_5_students'),
     path('api/reports/debtors/', report_debtors, name='debtors'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
