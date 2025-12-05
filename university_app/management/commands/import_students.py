@@ -1,9 +1,9 @@
-# university_app/management/commands/import_students.py
 import pandas as pd
 from django.core.management.base import BaseCommand
 from university_app.models import Student
 from django.db import transaction
 import os
+
 
 class Command(BaseCommand):
     help = 'Импорт студентов из CSV/XLSX'

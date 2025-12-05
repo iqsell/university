@@ -1,4 +1,3 @@
-# university_app/models.py — 100% РАБОЧАЯ ФИНАЛЬНАЯ ВЕРСИЯ
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -25,7 +24,6 @@ class User(AbstractUser):
         verbose_name='Роль'
     )
 
-    # Привязка к профилям — ОБЯЗАТЕЛЬНО!
     student_profile = models.OneToOneField(
         'Student', null=True, blank=True, on_delete=models.SET_NULL,
         related_name='+', verbose_name='Профиль студента'
@@ -35,7 +33,6 @@ class User(AbstractUser):
         related_name='+', verbose_name='Профиль преподавателя'
     )
 
-    # Убираем конфликт с auth.User
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='university_users',

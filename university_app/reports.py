@@ -6,11 +6,10 @@ from .models import Student, Enrollment, Schedule, Payment
 
 
 class UniversityReports:
-    """Все 5 сложных отчётов — теперь работают на 100% с твоими моделями"""
+    """5 сложных отчётов """
 
     @staticmethod
     def students_above_course_average():
-        """1. Студенты с GPA > среднего по их курсам"""
         return list(
             Student.objects.annotate(
                 course_avg_grade=Coalesce(Avg('enrollments__grade'), 0.0)  # ← ВОТ ПРАВИЛЬНОЕ ИМЯ!
@@ -21,7 +20,6 @@ class UniversityReports:
 
     @staticmethod
     def teacher_week_schedule(teacher_id: int):
-        """2. Расписание преподавателя на неделю"""
         return list(
             Schedule.objects.filter(teacher_id=teacher_id)
             .select_related('course')
@@ -34,7 +32,6 @@ class UniversityReports:
 
     @staticmethod
     def course_average_grade(course_id: int):
-        """3. Средний балл по курсу"""
         stats = Enrollment.objects.filter(course_id=course_id).aggregate(
             avg_grade=Avg('grade'),
             passed_count=Count('id', filter=Q(passed=True)),
@@ -51,7 +48,6 @@ class UniversityReports:
 
     @staticmethod
     def top_5_students_by_gpa():
-        """4. Топ-5 студентов по GPA (оконная функция)"""
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT 
@@ -66,7 +62,6 @@ class UniversityReports:
 
     @staticmethod
     def debtors_with_debt_amount():
-        """5. Студенты с долгами + сумма"""
         return list(
             Student.objects.annotate(
                 debt=Coalesce(

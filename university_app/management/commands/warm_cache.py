@@ -1,6 +1,6 @@
-# university_app/management/commands/warm_cache.py
 from django.core.management.base import BaseCommand
 from university_app.cache import UniversityCache
+
 
 class Command(BaseCommand):
     help = 'Прогрев кэша университета'

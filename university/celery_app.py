@@ -6,9 +6,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'university.settings')
 
 app = Celery('university')
 
-# ← КРИТИЧЕСКИ ВАЖНАЯ СТРОКА ДЛЯ WINDOWS!
+
 app.conf.task_eager_propagates = True
-app.conf.task_always_eager = False  # False = асинхронно, True = синхронно (для теста)
+app.conf.task_always_eager = False  # False = асинхронно, True = синхронно
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()

@@ -1,4 +1,3 @@
-# university_app/test/test_all.py — 100% РАБОЧИЕ ТЕСТЫ (ДЕКАБРЬ 2025)
 import os
 from django.test import TestCase
 from django.urls import reverse
@@ -69,7 +68,7 @@ class APITests(APITestCase):
         self.client.force_authenticate(user=self.student_user)
         url = reverse('course-detail', kwargs={'pk': course.pk})
         response = self.client.delete(url)
-        self.assertEqual(response.status_code,status.HTTP_404_NOT_FOUND or status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND or status.HTTP_403_FORBIDDEN)
 
     def test_teacher_sees_only_his_students(self):
         my_course = Course.objects.create(name="Мой курс", credits=6, teacher=self.teacher)

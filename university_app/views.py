@@ -1,4 +1,3 @@
-# university_app/views.py — ФИНАЛЬНАЯ ВЕРСИЯ (ВСЁ РАБОТАЕТ!)
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -63,36 +62,43 @@ class DepartmentViewSet(BaseViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
 
+
 class TeacherViewSet(BaseViewSet):
     queryset = Teacher.objects.select_related('department').all()
     serializer_class = TeacherSerializer
+
 
 class StudentViewSet(BaseViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
+
 class CourseViewSet(BaseViewSet):
     queryset = Course.objects.select_related('teacher').all()
     serializer_class = CourseSerializer
+
 
 class EnrollmentViewSet(BaseViewSet):
     queryset = Enrollment.objects.select_related('student', 'course__teacher').all()
     serializer_class = EnrollmentSerializer
 
+
 class ScheduleViewSet(BaseViewSet):
     queryset = Schedule.objects.select_related('course__teacher', 'teacher').all()
     serializer_class = ScheduleSerializer
 
+
 class ExamViewSet(BaseViewSet):
     queryset = Exam.objects.select_related('course__teacher').all()
     serializer_class = ExamSerializer
+
 
 class PaymentViewSet(BaseViewSet):
     queryset = Payment.objects.select_related('student').all()
     serializer_class = PaymentSerializer
 
 
-# === ОТЧЁТЫ (ВСЕ ВЕРНУЛ!) ===
+# === ОТЧЁТЫ ===
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def report_students_above_average(request):

@@ -1,4 +1,3 @@
-# university_app/tasks.py — АСИНХРОННЫЕ ЗАДАЧИ
 from celery import shared_task
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -63,7 +62,6 @@ def generate_performance_report(student_id):
     return f"Отчёт сохранён: {filepath}"
 
 
-# university_app/tasks.py — ФИНАЛЬНАЯ ВЕРСИЯ ИМПОРТА (РАБОТАЕТ!)
 import pandas as pd
 from celery import shared_task
 from django.db import transaction
@@ -90,11 +88,11 @@ def import_students_task(self, file_path, user_email=None):
         raise FileNotFoundError(error_msg)
 
     try:
-        # Читаем файл с правильным движком
+
         if file_path.lower().endswith('.csv'):
             df = pd.read_csv(file_path, encoding='utf-8')
         else:
-            df = pd.read_excel(file_path, engine='openpyxl')  # ← ВАЖНО!
+            df = pd.read_excel(file_path, engine='openpyxl')
 
         created = 0
         updated = 0

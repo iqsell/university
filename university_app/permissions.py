@@ -1,5 +1,5 @@
-# university_app/permissions.py
 from rest_framework import permissions
+
 
 class RoleBasedPermission(permissions.BasePermission):
     """
@@ -19,13 +19,13 @@ class RoleBasedPermission(permissions.BasePermission):
             return True
 
         if role == 'teacher':
-            # Преподаватель может создавать/изменять только свои курсы
+
             if view.basename == 'course' and request.method in ['POST', 'PUT', 'PATCH']:
                 return request.data.get('teacher') == request.user.teacher_profile_id
             return True
 
         if role == 'student':
-            return request.method in permissions.SAFE_METHODS  # только чтение
+            return request.method in permissions.SAFE_METHODS
 
         return False
 
@@ -39,7 +39,7 @@ class RoleBasedPermission(permissions.BasePermission):
             return True
 
         if role == 'teacher':
-            # Преподаватель видит только свои курсы и связанные объекты
+
             if hasattr(obj, 'teacher'):
                 return obj.teacher == request.user.teacher_profile
             if hasattr(obj, 'course') and hasattr(obj.course, 'teacher'):
@@ -47,7 +47,6 @@ class RoleBasedPermission(permissions.BasePermission):
             return True
 
         if role == 'student':
-            # Студент видит только свои записи
             return getattr(obj, 'student', None) == request.user.student_profile
 
         return False
