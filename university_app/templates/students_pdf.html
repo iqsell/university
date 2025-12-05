@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; margin: 40px; }
+        h1 { color: #2c3e50; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .footer { margin-top: 50px; text-align: center; color: #777; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <p>Сформировано: {{ generated_at }}</p>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>ФИО</th>
+            <th>Email</th>
+            <th>GPA</th>
+            <th>Статус</th>
+        </tr>
+        {% for s in students %}
+        <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.full_name }}</td>
+            <td>{{ s.email }}</td>
+            <td>{{ s.gpa }}</td>
+            <td>{{ s.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="footer">
+        Университетская система управления • {{ generated_at }}
+    </div>
+</body>
+</html>
